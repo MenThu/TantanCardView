@@ -20,9 +20,7 @@ static CGFloat   const ITEMVIEW_BOTTOM_2_LIKEBTN_TOP = 30;
 static CGFloat   const BTN_BOTTOM_2_VIEW_BOTTOM = 20;
 static CGFloat   const VIEW_SCALE = 0.9;
 static CGFloat   const BOTTOM_OFFSET = 8;
-static CGFloat   const MAX_MOVE_DISTANCE = 300;
 static CGFloat   const TIME_PERDISTANCE = 0.1f/100;
-static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
 
 @interface _ItemViewSetting : NSObject
 
@@ -49,7 +47,9 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
 
 #import "MPCardView.h"
 
-@interface MPCardView ()
+@interface MPCardView (){
+    dispatch_group_t _animateGroup;
+}
 
 @property (nonatomic, weak) UIButton *backBtn;
 @property (nonatomic, assign) CGRect backBtnFrame;
@@ -65,6 +65,8 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
 @property (nonatomic, assign) CGFloat viewCenterY;
 @property (nonatomic, weak) UIButton *disLikeBtn;
 @property (nonatomic, weak) UIButton *likeBtn;
+@property (nonatomic, assign) CGFloat determineDistance;
+@property (nonatomic, assign) CGFloat animateDistance;
 
 @end
 
@@ -120,6 +122,7 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
     self.backBtn.frame = CGRectMake(backX, backY, backWidth, backHeight);
     self.itemViewY = CGRectGetMaxY(self.backBtn.frame) + LABEL_TOP_2_BACKBTN_BOTTOM + self.labelSize.height + ITEMVIEW_TOP_2_HINTLABEL_BOTTOM;
     self.itemViewArray = @[].mutableCopy;
+    _animateGroup = dispatch_group_create();
 }
 
 - (void)layoutSubviews{
@@ -195,11 +198,13 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
     CGFloat width = self.bounds.size.width;
     CGFloat height = self.bounds.size.height;
     self.viewCenterY = height/2;
+    self.determineDistance = height/4;
+    self.animateDistance = [self sqrtValue:width withHeight:height]/2;
     CGFloat itemViewWidth = width * 0.8;
     CGFloat itemViewHeight = height - BTN_BOTTOM_2_VIEW_BOTTOM - BTN_WIDTH - ITEMVIEW_BOTTOM_2_LIKEBTN_TOP - self.itemViewY;
     CGFloat itemViewX = (width - itemViewWidth)/2;
     CGRect itemViewFrame = CGRectMake(itemViewX, self.itemViewY, itemViewWidth, itemViewHeight);
-    
+    self.itemViewFrame = itemViewFrame;
     NSInteger viewCount = MIN(self.cardSource.count, CARD_DEFAULT_COUNT);
     self.settingArray = @[].mutableCopy;
     for (NSInteger index = 0; index < viewCount-1; index ++) {
@@ -257,6 +262,7 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
     }
     
     for (MPCardItemView *itemView in self.itemViewArray) {
+        [itemView changeShaowOpacity:0];
         itemView.userInteractionEnabled = NO;
         itemView.frame = itemViewFrame;
         itemView.transform = CGAffineTransformIdentity;
@@ -272,7 +278,8 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
     } finish:^{
         weakSelf.itemViewArray.lastObject.userInteractionEnabled = YES;
     }];
-    [self.itemViewArray.firstObject changeShaowOpacity:self.settingArray.firstObject.shadowOpacity];
+//    [self.itemViewArray.firstObject changeShaowOpacity:self.settingArray.firstObject.shadowOpacity];
+    [self.itemViewArray.lastObject changeShaowOpacity:1];
 }
 
 - (CGFloat)sqrtValue:(CGFloat)width withHeight:(CGFloat)height{
@@ -289,7 +296,7 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
     
     //最底部一张不变，其余做放大和上移
     CGFloat moveDistance = [self sqrtValue:xLength withHeight:yLength];
-    CGFloat percent = MIN(moveDistance/MAX_MOVE_DISTANCE, 1);
+    CGFloat percent = MIN(moveDistance/self.animateDistance, 1);
     for (NSInteger index = 0; index < self.itemViewArray.count-1; index ++) {
         if (self.itemViewArray[index].hidden) {
             continue;
@@ -318,24 +325,66 @@ static CGFloat   const TOP_CARD_REMOVE_DISTANCE = 1000;
 }
 
 - (void)cardDidEndDrag:(CGPoint)point{
-    CGFloat distance = [self sqrtValue:(point.x - self.beginPoint.x) withHeight:(point.y - self.beginPoint.y)];
-    if (distance < MAX_MOVE_DISTANCE) {//还原卡片
+    CGFloat distance = point.y - self.beginPoint.y;
+    if (fabs(distance) < self.determineDistance) {//还原卡片
         [self restoreAllCard:distance];
     }else{//移除卡片
-        BOOL removeFromTop = YES;
-        [self removeTopCard:removeFromTop];
+        [self removeTopCard:(distance > 0 ? NO : YES)];
     }
 }
 
 - (void)removeTopCard:(BOOL)isRemoveFromTop{
-    static CGFloat animateTime = TOP_CARD_REMOVE_DISTANCE * TIME_PERDISTANCE;
+    CGPoint topCardViewCenter = self.itemViewArray.lastObject.center;
+    CGFloat moveDistance;
+    if (isRemoveFromTop == YES) {
+        moveDistance = -CGRectGetMaxY(self.itemViewArray.lastObject.frame);
+    }else{
+        moveDistance = self.bounds.size.height - CGRectGetMinY(self.itemViewArray.lastObject.frame);
+    }
+    topCardViewCenter = CGPointMake(topCardViewCenter.x, topCardViewCenter.y+moveDistance);
+    CGFloat animateTime = MIN(MAX(moveDistance*TIME_PERDISTANCE, 0.2), 0.3);
     __weak typeof(self) weakSelf = self;
-    CGFloat distance = TOP_CARD_REMOVE_DISTANCE * (isRemoveFromTop == YES ? -1 : 1);
+    dispatch_group_enter(_animateGroup);
     [self inAnimate:animateTime animate:^{
-        CGAffineTransform transform = weakSelf.itemViewArray.lastObject.transform;
-        weakSelf.itemViewArray.lastObject.transform = CGAffineTransformTranslate(transform, 0, distance);
+        weakSelf.itemViewArray.lastObject.center = topCardViewCenter;
     } finish:^{
+        weakSelf.itemViewArray.lastObject.transform = CGAffineTransformIdentity;
+        weakSelf.itemViewArray.lastObject.frame = weakSelf.itemViewFrame;
+        dispatch_group_leave(_animateGroup);
     }];
+    dispatch_group_enter(_animateGroup);
+    [self inAnimate:0.25 animate:^{
+        for (NSInteger index = 0; index < weakSelf.itemViewArray.count-1; index ++) {
+            MPCardItemView *itemView = weakSelf.itemViewArray[index];
+            _ItemViewSetting *setting = weakSelf.settingArray[index+1];
+            CGAffineTransform transform = CGAffineTransformMakeScale(setting.scale, setting.scale);
+            itemView.transform = CGAffineTransformTranslate(transform, 0, setting.offset);
+            [itemView changeShaowOpacity:setting.shadowOpacity];
+        }
+    } finish:^{
+        dispatch_group_leave(_animateGroup);
+    }];
+    dispatch_group_notify(_animateGroup, dispatch_get_main_queue(), ^{
+        [weakSelf bringTopCard2Bottom];
+    });
+}
+
+- (void)bringTopCard2Bottom{
+    MPCardItemView *topCardView = self.itemViewArray.lastObject;
+//    [topCardView changeShaowOpacity:0];
+    topCardView.userInteractionEnabled = NO;
+    [topCardView removeFromSuperview];
+    [self.itemViewArray removeObject:topCardView];
+    
+    topCardView.frame = self.itemViewFrame;
+    _ItemViewSetting *setting = self.settingArray.firstObject;
+    CGAffineTransform transform = CGAffineTransformMakeScale(setting.scale, setting.scale);
+    topCardView.transform = CGAffineTransformTranslate(transform, 0, setting.offset);
+//    [topCardView changeShaowOpacity:0];
+    
+    [self insertSubview:topCardView atIndex:VIEW_START_INDEX];
+    [self.itemViewArray insertObject:topCardView atIndex:0];
+    self.itemViewArray.lastObject.userInteractionEnabled = YES;
 }
 
 - (void)restoreAllCard:(CGFloat)distance{
