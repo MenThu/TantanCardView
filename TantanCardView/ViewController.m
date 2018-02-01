@@ -9,21 +9,9 @@
 #define MTRandomColor      MTColor(arc4random_uniform(256), arc4random_uniform(256), arc4random_uniform(256), 1.f)
 
 #import "ViewController.h"
-#import "MPCardView.h"
+#import "MPDragController.h"
 
 @interface ViewController ()
-
-
-
-@property (nonatomic, strong) NSMutableArray <UIView *> *testViewArray;
-@property (nonatomic, strong) NSMutableArray <NSValue *> *frameArray;
-@property (nonatomic, strong) NSMutableArray <NSNumber *> *viewScaleArray;
-@property (nonatomic, strong) NSMutableArray <NSNumber *> *bottomOffsetArray;
-
-/**
- *  卡片视图
- */
-@property (nonatomic, weak) MPCardView *cardView;
 
 
 
@@ -34,8 +22,14 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-    [self addCardContainerView];
+//    [self addCardContainerView];
 }
+
+- (IBAction)push2TantanController:(UIButton *)sender {
+    MPDragController *dragController = [[MPDragController alloc] init];
+    [self.navigationController pushViewController:dragController animated:YES];
+}
+
 
 - (void)addTransformTestView{
     CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
@@ -62,12 +56,12 @@
     }
 }
 
-- (void)addCardContainerView{
-    MPCardView *cardView = [[MPCardView alloc] init];
-    cardView.cardSource = @[@(1), @(1), @(1), @(1)];
-    cardView.frame = self.view.bounds;
-    [self.view addSubview:(_cardView = cardView)];
-}
+//- (void)addCardContainerView{
+//    MPCardView *cardView = [[MPCardView alloc] init];
+//    cardView.cardSource = @[@(1), @(1), @(1), @(1)];
+//    cardView.frame = self.view.bounds;
+//    [self.view addSubview:(_cardView = cardView)];
+//}
 
 /**
  *  - (void)addCardContainerView{
@@ -108,50 +102,50 @@
  }
  */
 
-- (void)addTestView{
-    self.testViewArray = @[].mutableCopy;
-    self.viewScaleArray = @[].mutableCopy;
-    self.bottomOffsetArray = @[].mutableCopy;
-    self.frameArray = @[].mutableCopy;
-    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
-    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
-    NSInteger count = 4;
-    CGFloat scale = 0.7;
-    CGFloat bottomOffset = 10;
-    CGFloat viewWidth = screenWidth * scale;
-    CGFloat viewHeight = screenHeight * scale;
-    CGFloat bottomY = 10 + viewHeight;
-    for (NSInteger index = 0; index < count; index ++) {
-        [self.viewScaleArray insertObject:@(pow(scale, index)) atIndex:0];
-        [self.bottomOffsetArray insertObject:@(bottomY + index*bottomOffset) atIndex:0];
-    }
-//    NSLog(@"%@ %@", self.viewScaleArray, self.bottomOffsetArray);
-    for (NSInteger index = 0; index < count; index ++) {
-        CGFloat scaleValue = self.viewScaleArray[index].floatValue;
-        CGFloat newViewWidth = viewWidth * scaleValue;
-        CGFloat newViewHeight = viewHeight * scaleValue;
-        CGFloat viewX = screenWidth/2 - newViewWidth/2;
-        CGFloat viewY = self.bottomOffsetArray[index].floatValue - newViewHeight;
-        UIView *testView = [UIView new];
-        testView.backgroundColor = MTRandomColor;
-        testView.frame = CGRectMake(viewX, viewY, newViewWidth, newViewHeight);
-        [self.view addSubview:testView];
-        [self.testViewArray addObject:testView];
-        [self.frameArray addObject:[NSValue valueWithCGRect:testView.frame]];
-    }
-}
-
-- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
-    [self.testViewArray.lastObject removeFromSuperview];
-    [self.testViewArray removeLastObject];
-    NSInteger offset = self.frameArray.count - self.testViewArray.count;
-    [UIView animateWithDuration:0.2 animations:^{
-        for (NSInteger index = 0; index < self.testViewArray.count; index ++) {
-            UIView *testView = self.testViewArray[index];
-            testView.frame = self.frameArray[index+offset].CGRectValue;
-        }
-    }];
-}
+//- (void)addTestView{
+//    self.testViewArray = @[].mutableCopy;
+//    self.viewScaleArray = @[].mutableCopy;
+//    self.bottomOffsetArray = @[].mutableCopy;
+//    self.frameArray = @[].mutableCopy;
+//    CGFloat screenWidth = [UIScreen mainScreen].bounds.size.width;
+//    CGFloat screenHeight = [UIScreen mainScreen].bounds.size.height;
+//    NSInteger count = 4;
+//    CGFloat scale = 0.7;
+//    CGFloat bottomOffset = 10;
+//    CGFloat viewWidth = screenWidth * scale;
+//    CGFloat viewHeight = screenHeight * scale;
+//    CGFloat bottomY = 10 + viewHeight;
+//    for (NSInteger index = 0; index < count; index ++) {
+//        [self.viewScaleArray insertObject:@(pow(scale, index)) atIndex:0];
+//        [self.bottomOffsetArray insertObject:@(bottomY + index*bottomOffset) atIndex:0];
+//    }
+////    NSLog(@"%@ %@", self.viewScaleArray, self.bottomOffsetArray);
+//    for (NSInteger index = 0; index < count; index ++) {
+//        CGFloat scaleValue = self.viewScaleArray[index].floatValue;
+//        CGFloat newViewWidth = viewWidth * scaleValue;
+//        CGFloat newViewHeight = viewHeight * scaleValue;
+//        CGFloat viewX = screenWidth/2 - newViewWidth/2;
+//        CGFloat viewY = self.bottomOffsetArray[index].floatValue - newViewHeight;
+//        UIView *testView = [UIView new];
+//        testView.backgroundColor = MTRandomColor;
+//        testView.frame = CGRectMake(viewX, viewY, newViewWidth, newViewHeight);
+//        [self.view addSubview:testView];
+//        [self.testViewArray addObject:testView];
+//        [self.frameArray addObject:[NSValue valueWithCGRect:testView.frame]];
+//    }
+//}
+//
+//- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+//    [self.testViewArray.lastObject removeFromSuperview];
+//    [self.testViewArray removeLastObject];
+//    NSInteger offset = self.frameArray.count - self.testViewArray.count;
+//    [UIView animateWithDuration:0.2 animations:^{
+//        for (NSInteger index = 0; index < self.testViewArray.count; index ++) {
+//            UIView *testView = self.testViewArray[index];
+//            testView.frame = self.frameArray[index+offset].CGRectValue;
+//        }
+//    }];
+//}
 
 
 - (void)didReceiveMemoryWarning {

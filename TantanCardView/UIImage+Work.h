@@ -11,5 +11,6 @@
 @interface UIImage (Work)
 
 + (UIImage *)imageWithColor:(UIColor *)color;
+- (UIImage *)scaleSize:(CGSize)newSize;
 
 @end

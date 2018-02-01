@@ -14,7 +14,7 @@
             buildForArchiving = "YES">
             <BuildableReference
                BuildableIdentifier = 'primary'
-               BlueprintIdentifier = '154632FCD3A9222B1217790062375F61'
+               BlueprintIdentifier = '4AF0F41B29C54DD6C9DD89C5855031DA'
                BlueprintName = 'Pods-TantanCardView'
                ReferencedContainer = 'container:Pods.xcodeproj'
                BuildableName = 'libPods-TantanCardView.a'>
