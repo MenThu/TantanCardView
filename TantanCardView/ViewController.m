@@ -10,10 +10,13 @@
 
 #import "ViewController.h"
 #import "MPDragController.h"
+#import "CardMacro.h"
+#import "TestCardView.h"
 
 @interface ViewController ()
 
-
+@property (nonatomic, weak) UIView *oneView;
+@property (nonatomic, weak) UIView *twoView;
 
 @end
 
@@ -22,10 +25,43 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     
-//    [self addCardContainerView];
+//    //计算顶部图片参数
+    CGFloat cardViewWidth = CGRectGetWidth(self.view.bounds);
+    CGFloat cardViewHeight = CGRectGetHeight(self.view.bounds);
+    CGFloat topCardWidth = cardViewWidth * 0.8;
+    CGFloat topCardHeight = cardViewHeight * 0.6;
+    CGFloat topCardX = (cardViewWidth - topCardWidth)/2;
+    CGFloat topCardY = (cardViewHeight - topCardHeight)/2;
+    CGRect topCardFrame = CGRectMake(topCardX, topCardY, topCardWidth, topCardHeight);
+
+    NSMutableArray <UIView *> *tempArray = @[].mutableCopy;
+    for (NSInteger index = 0; index < 4; index ++) {
+        TestCardView *tempView = [TestCardView loadView];
+        tempView.backgroundColor = MTRandomColor;
+        tempView.frame = topCardFrame;
+        [self.view insertSubview:tempView atIndex:0];
+        [tempArray insertObject:tempView atIndex:0];
+    }
+
+    CGFloat scale = 0.8;
+    CGFloat bottomOffset = 0;
+    NSInteger totalCount = tempArray.count;
+    for (NSInteger index = totalCount-1; index >= 0; index --) {
+        NSInteger offset = totalCount-index-1;
+        CGFloat actualScale = pow(scale, offset);
+        CGFloat autualBottomOffset = (topCardHeight/2 - topCardHeight/2*actualScale + offset*bottomOffset)/actualScale;
+        NSLog(@"index=[%ld]  scale=[%.2f] bottomOffset=[%.2f]", (long)index, actualScale, autualBottomOffset);
+        CGAffineTransform transform = CGAffineTransformMakeScale(actualScale, actualScale);
+        tempArray[index].transform = CGAffineTransformTranslate(transform, 0, autualBottomOffset);
+    }
 }
 
 - (IBAction)push2TantanController:(UIButton *)sender {
+    MPDragController *dragController = [[MPDragController alloc] init];
+    [self.navigationController pushViewController:dragController animated:YES];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
     MPDragController *dragController = [[MPDragController alloc] init];
     [self.navigationController pushViewController:dragController animated:YES];
 }

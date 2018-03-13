@@ -17,6 +17,11 @@
     return self;
 }
 
+- (void)awakeFromNib{
+    [super awakeFromNib];
+    [self addPanGesture];
+}
+
 - (void)addPanGesture{
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(dragGesture:)];
     [self addGestureRecognizer:panGesture];

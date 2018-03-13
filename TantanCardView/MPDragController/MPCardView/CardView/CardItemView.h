@@ -25,4 +25,9 @@
  */
 @property (nonatomic, copy) void (^dragEnd) (CGPoint point);
 
+/**
+ *  数据源
+ */
+@property (nonatomic, weak) id cardModel;
+
 @end

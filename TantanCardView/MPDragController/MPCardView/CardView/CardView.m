@@ -8,34 +8,8 @@
 
 #import "CardView.h"
 #import "MPCardItemView.h"
-
-static NSInteger    const   _cardStartIndex = 0;
-static NSInteger    const   _defaultDisplayCount = 4;
-static CGFloat      const   _bottomOffset = 8.f;
-static CGFloat      const   _cardScale = 0.8f;
-static CGFloat      const   _animateDurationPerPoint = 0.05/100;
-static CGFloat      const   _topCardBottom2BtnTop = 40.f;
-static CGFloat      const   _btnBottom2ViewBottom = 20.f;
-
-@interface CardSetting : NSObject
-
-@property (nonatomic, assign) CGRect cardFrame;
-@property (nonatomic, assign) CGFloat viewScale;
-@property (nonatomic, assign) CGFloat bottomOffsetY;
-@property (nonatomic, assign) CGFloat shadowOpacity;
-
-@end
-
-@implementation CardSetting
-
-- (instancetype)init{
-    if (self = [super init]) {
-        self.shadowOpacity = 1.f;
-    }
-    return self;
-}
-
-@end
+#import "CardSetting.h"
+#import "CardMacro.h"
 
 @interface CardView ()
 
