@@ -5,7 +5,8 @@
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13772"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13771"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -21,34 +22,20 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xv5-L8-Zj3" customClass="TransformCardView">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
-                    <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="als-se-4uK">
-                            <rect key="frame" x="10" y="10" width="50" height="30"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="30" id="0vt-PF-M1r"/>
-                                <constraint firstAttribute="width" constant="50" id="fej-2e-tOT"/>
-                            </constraints>
-                            <state key="normal" title="Button"/>
-                            <connections>
-                                <action selector="back:" destination="-1" eventType="touchUpInside" id="Men-9A-TrU"/>
-                            </connections>
-                        </button>
-                    </subviews>
+                    <rect key="frame" x="56" y="83.5" width="263" height="500"/>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                     <constraints>
-                        <constraint firstItem="als-se-4uK" firstAttribute="leading" secondItem="Xv5-L8-Zj3" secondAttribute="leading" constant="10" id="N4Y-iq-CcL"/>
-                        <constraint firstItem="als-se-4uK" firstAttribute="top" secondItem="Xv5-L8-Zj3" secondAttribute="top" constant="10" id="R7F-6U-6ZW"/>
+                        <constraint firstAttribute="height" constant="500" id="T7x-Xt-AtY"/>
                     </constraints>
                 </view>
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="Xv5-L8-Zj3" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="2WL-57-oVs"/>
-                <constraint firstAttribute="trailing" secondItem="Xv5-L8-Zj3" secondAttribute="trailing" id="8u4-F3-WLa"/>
-                <constraint firstAttribute="bottom" secondItem="Xv5-L8-Zj3" secondAttribute="bottom" id="nen-cB-E1U"/>
-                <constraint firstItem="Xv5-L8-Zj3" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="rWl-Bu-Lop"/>
+                <constraint firstItem="Xv5-L8-Zj3" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="ByM-Yg-Ks7"/>
+                <constraint firstItem="Xv5-L8-Zj3" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="HgS-MC-pl2"/>
+                <constraint firstItem="Xv5-L8-Zj3" firstAttribute="width" secondItem="i5M-Pr-FkT" secondAttribute="width" multiplier="0.7" constant="0.69999999999999996" id="c7o-Ju-FFJ"/>
             </constraints>
-            <point key="canvasLocation" x="-1365" y="-1126"/>
+            <point key="canvasLocation" x="-1678" y="-1275"/>
         </view>
     </objects>
 </document>

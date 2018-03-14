@@ -14,6 +14,7 @@
 @interface MPDragController ()
 
 @property (weak, nonatomic) IBOutlet TransformCardView *cardView;
+@property (nonatomic, assign) NSInteger currentPage;
 
 @end
 
@@ -21,14 +22,32 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    __weak typeof(self) weakSelf = self;
+    self.currentPage = 0;
     self.cardView.getItemView = ^CardItemView *{
         return [TestCardView loadView];
     };
-    NSMutableArray <NSString *> *cardSource = @[].mutableCopy;
-    for (NSInteger index = 0; index < 100; index ++) {
-        [cardSource addObject:[NSString stringWithFormat:@"%lld", (long long)(index + 1)]];
+    self.cardView.cardSource = [self getDataWithPage:self.currentPage];
+    self.cardView.needMoreData = ^{
+        if (weakSelf.currentPage < 3) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf.cardView appendCardArray:[weakSelf getDataWithPage:++weakSelf.currentPage]];
+            });
+        }else{
+            weakSelf.cardView.isNoMoreData = YES;
+        }
+    };
+    self.cardView.allCardDataIsDone = ^{
+        NSLog(@"没有更多数据了");
+    };
+}
+
+- (NSMutableArray *)getDataWithPage:(NSInteger)page{
+    NSMutableArray *cardSource = @[].mutableCopy;
+    for (NSInteger index = 0; index < 10; index ++) {
+        [cardSource addObject:[NSString stringWithFormat:@"%lld", (long long)(index + 1 + page*10)]];
     }
-    self.cardView.cardSource = cardSource;
+    return cardSource;
 }
 
 - (IBAction)back:(UIButton *)sender {
